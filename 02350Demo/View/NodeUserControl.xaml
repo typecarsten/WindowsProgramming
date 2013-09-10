@@ -1,0 +1,102 @@
+﻿<UserControl x:Class="_02350Demo.View.NodeUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+             xmlns:cmd="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras.WPF4"
+             Canvas.Left="{Binding X}" Canvas.Top="{Binding Y}" Width="{Binding Width}" Height="{Binding Height}" 
+             d:DesignHeight="100" d:DesignWidth="100">
+    <!--Denne grid bruges til at smide ting i oven på hinanden.-->
+    <Grid>
+        <!--Det nederste lag er en ellipse med samme animation som den foroven.-->
+        <Ellipse Fill="{Binding SelectedColor}" Stroke="Transparent" StrokeThickness="6" >
+            <!--Dette sætter rotationspunktet.-->
+            <Ellipse.RenderTransform>
+                <RotateTransform CenterX="{Binding CenterX}" CenterY="{Binding CenterY}"/>
+            </Ellipse.RenderTransform>
+            <!--Dette beskriver animationen der roterer 360 grader hvert 7 sekund forevigt.-->
+            <Ellipse.Triggers>
+                <EventTrigger RoutedEvent="Ellipse.Loaded">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetProperty="RenderTransform.Angle" From="0" To="360" Duration="0:0:7" RepeatBehavior="Forever" />
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Ellipse.Triggers>
+        </Ellipse>
+        <!--Andet lag er teksten "Vælg" + "med klik" fordelt over og under talteksten der kommer senere.-->
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="1" Text="Vælg" Foreground="Black" TextAlignment="Center" FontWeight="Bold"/>
+            <TextBlock Grid.Row="3" Text="med klik" Foreground="Black" TextAlignment="Center" FontWeight="Bold"/>
+        </Grid>
+        <!--Tredje lag er den øverste ellipse med animation og gradient.-->
+        <Ellipse Opacity="{Binding DataContext.ModeOpacity, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" Stroke="Purple" StrokeThickness="6" StrokeDashArray="3.1" Width="{Binding Width}" Height="{Binding Height}">
+            <!--Baggrundsfarven der er en gradient.-->
+            <Ellipse.Fill>
+                <RadialGradientBrush>
+                    <GradientStop Color="CornflowerBlue" Offset="0.0" />
+                    <GradientStop  Color="Blue" Offset="0.60" />
+                    <GradientStop Color="Navy" Offset="0.90" />
+                </RadialGradientBrush>
+            </Ellipse.Fill>
+            <!--Rotationspunktet.-->
+            <Ellipse.RenderTransform>
+                <RotateTransform CenterX="{Binding CenterX}" CenterY="{Binding CenterY}"/>
+            </Ellipse.RenderTransform>
+            <!--Animationen.-->
+            <Ellipse.Triggers>
+                <EventTrigger RoutedEvent="Ellipse.Loaded">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetProperty="RenderTransform.Angle" From="0" To="360" Duration="0:0:7" RepeatBehavior="Forever" />
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Ellipse.Triggers>
+            <!--Her bliver de tre events MouseDown, MouseMove og MouseUp bundet til de tilsvarende kommandoer på MainViewModel.-->
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="MouseDown">
+                    <cmd:EventToCommand Command="{Binding DataContext.MouseDownNodeCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" PassEventArgsToCommand="True"/>
+                </i:EventTrigger>
+                <i:EventTrigger EventName="MouseMove">
+                    <cmd:EventToCommand Command="{Binding DataContext.MouseMoveNodeCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" PassEventArgsToCommand="True"/>
+                </i:EventTrigger>
+                <i:EventTrigger EventName="MouseUp">
+                    <cmd:EventToCommand Command="{Binding DataContext.MouseUpNodeCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" PassEventArgsToCommand="True"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </Ellipse>
+        <!--Det fjerde og øverste lag indholder punktets nummer, placeret i midten med TextAlignment og en grid.-->
+        <Grid Width="{Binding Width}" Height="{Binding Height}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50*"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="50*"/>
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="1" Opacity="1.0" FontSize="20" Text="{Binding Number}" Width="{Binding Width}" Height="auto" TextAlignment="Center" Foreground="White">
+                <!--De samme events som for den øverste ellipse er bundet til MainViewModel kommandoer her, sådan at hvis man trykker på tallet i midten så sker der også noget der.-->
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseDown">
+                        <cmd:EventToCommand Command="{Binding DataContext.MouseDownNodeCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" PassEventArgsToCommand="True"/>
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="MouseMove">
+                        <cmd:EventToCommand Command="{Binding DataContext.MouseMoveNodeCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" PassEventArgsToCommand="True"/>
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="MouseUp">
+                        <cmd:EventToCommand Command="{Binding DataContext.MouseUpNodeCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" PassEventArgsToCommand="True"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </TextBlock>
+        </Grid>
+    </Grid>
+</UserControl>
